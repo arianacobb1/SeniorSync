@@ -126,4 +126,5 @@ def create_app(test_config=None):
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Port 5001 avoids macOS AirPlay Receiver, which already listens on port 5000.
+    app.run(debug=True, port=5001)
