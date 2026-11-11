@@ -6,6 +6,15 @@ const statusText = {
   'completed': 'Done',
 };
 
+// Turn the server's days_left number into friendly text, e.g. "Due tomorrow".
+function deadlineText(daysLeft) {
+  if (daysLeft === 0) return 'Due today';
+  if (daysLeft === 1) return 'Due tomorrow';
+  if (daysLeft > 1) return `Due in ${daysLeft} days`;
+  if (daysLeft === -1) return '1 day overdue';
+  return `${-daysLeft} days overdue`;
+}
+
 async function refresh() {
   const [assignmentsResponse, summaryResponse] = await Promise.all([
     fetch('/api/assignments'), fetch('/api/summary'),
@@ -44,7 +53,11 @@ async function refresh() {
     info.className = 'assignment-info';
     const title = document.createElement('strong'); title.textContent = item.title;
     const meta = document.createElement('small');
-    meta.textContent = `${item.course} · Due ${item.due_date}`;
+    // Completed work isn't "overdue" anymore, so only show the date for it.
+    const when = item.completed_at
+      ? `Due ${item.due_date}`
+      : `${deadlineText(item.days_left)} (${item.due_date})`;
+    meta.textContent = `${item.course} · ${when}`;
     info.append(title, meta);
     const status = document.createElement('span');
     status.className = `status ${item.urgency}`;
